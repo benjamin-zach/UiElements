@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace UiElements
 {
@@ -20,8 +21,12 @@ namespace UiElements
 		}
 	}
 
-	public abstract class InteractableUiElement : UiElement
+	public abstract class InteractableUiElement : UiElement, IDragHandler, IBeginDragHandler, IEndDragHandler
 	{
+		public abstract void OnBeginDrag(PointerEventData eventData);
+		public abstract void OnDrag(PointerEventData eventData);
+		public abstract void OnEndDrag(PointerEventData eventData);
+
 		protected abstract void OnClick();
 	}
 }

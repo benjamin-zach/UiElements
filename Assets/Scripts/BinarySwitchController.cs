@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UiElements
@@ -17,10 +18,11 @@ namespace UiElements
 		#region Scene References
 		private Image BackgroundImage;
 		private Image BackgroundFrameImage;
-		private Image PinImage;
-		private Image PinFrameImage;
+		private GameObject Pin;
+		//private Image PinFrameImage;
 		private RectTransform BackgroundImageTransform;
 		private RectTransform PinImageTransform;
+		private Animator Animator;
 		#endregion
 
 		private bool On = false;
@@ -30,10 +32,11 @@ namespace UiElements
 		{
 			return BackgroundImage != null &&
 				BackgroundFrameImage != null &&
-				PinImage != null &&
-				PinFrameImage != null &&
+				Pin != null &&
+				//PinFrameImage != null &&
 				BackgroundImageTransform != null &&
-				PinImageTransform != null;
+				PinImageTransform != null &&
+				Animator != null;
 		}
 
 		protected override bool UpdateReferences()
@@ -43,10 +46,10 @@ namespace UiElements
 			BackgroundImage = _BackgroundImage.GetComponent<Image>();
 			BackgroundImageTransform = _BackgroundImage.GetComponent<RectTransform>();
 			BackgroundFrameImage = transform.Find("BackgroundFrameImage").GetComponent<Image>();
-			var _PinImage = transform.Find("PinImage");
-			PinImage = _PinImage.GetComponent<Image>();
-			PinImageTransform = _PinImage.GetComponent<RectTransform>();
-			PinFrameImage = transform.Find("PinImage/PinFrameImage").GetComponent<Image>();
+			Pin = transform.Find("Pin").gameObject;
+			PinImageTransform = Pin.GetComponent<RectTransform>();
+			//PinFrameImage = transform.Find("PinImage/PinFrameImage").GetComponent<Image>();
+			Animator = gameObject.GetComponent<Animator>();
 			return CheckReferences();
 		}
 
@@ -54,9 +57,9 @@ namespace UiElements
 		{
 			On = InitialOn;
 			const int Offset = 5;
-			LeftPinPosition = BackgroundImageTransform.position + new Vector3(Offset, 0);			
-			RightPinPosition = BackgroundImageTransform.position + new Vector3(BackgroundImageTransform.rect.width - PinImageTransform.rect.width - Offset, 0);
-			var _Button = PinImage.gameObject.AddComponent<Button>();
+			LeftPinPosition = new Vector3(Offset, 0);			
+			RightPinPosition = new Vector3(BackgroundImageTransform.rect.width - PinImageTransform.rect.width - Offset, 0);
+			var _Button = Pin.gameObject.AddComponent<Button>();
 			_Button.onClick.AddListener(OnClick);
 			ExplicitUpdate();
 		}
@@ -66,7 +69,7 @@ namespace UiElements
 			Toggle();
 		}
 
-		private void Toggle()
+		public void Toggle()
 		{
 			if (On)
 				SetOff();
@@ -84,16 +87,31 @@ namespace UiElements
 
 		private void SetOn()
 		{
-			PinImage.transform.position= RightPinPosition;
+			Pin.transform.localPosition = RightPinPosition;
 			BackgroundImage.color = BackgroundColorOn;
 			On = true;
 		}
 
 		private void SetOff()
 		{
-			PinImage.transform.position = LeftPinPosition;
+			Pin.transform.localPosition = LeftPinPosition;
 			BackgroundImage.color = BackgroundColorOff;
 			On = false;
+		}
+
+		public override void OnBeginDrag(PointerEventData eventData)
+		{
+			Animator.SetBool("Expanded", !Animator.GetBool("Expanded"));
+		}
+
+		public override void OnDrag(PointerEventData eventData)
+		{
+
+		}
+
+		public override void OnEndDrag(PointerEventData eventData)
+		{
+			Animator.SetBool("Expanded", !Animator.GetBool("Expanded"));
 		}
 	}
 }
